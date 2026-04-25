@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'screens/splash_screen.dart';
+import 'providers/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Ensure Firebase configuration is provided via flutterfire configure before running
-  // await Firebase.initializeApp();
-  runApp(const SkillSwapApp());
+  
+  // NOTE: Requires `flutterfire configure` to generate DefaultFirebaseOptions
+  // Assuming it will be configured or handled securely via standard web/android setup
+  // await Firebase.initializeApp(); 
+  
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: const SkillSwapApp(),
+    ),
+  );
 }
 
 class SkillSwapApp extends StatelessWidget {
