@@ -3,17 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'signup_screen.dart';
 import 'dashboard_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
@@ -23,23 +23,23 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A), // Deep Black-Blue
+      backgroundColor: const Color(0xFF0F172A),
       body: Stack(
         children: [
           // Background Gradient Circles
           Positioned(
-            top: -100,
-            right: -100,
+            bottom: -100,
+            left: -100,
             child: Container(
               width: 300,
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF1E3A8A).withOpacity(0.3),
+                color: const Color(0xFF1E3A8A).withOpacity(0.2),
               ),
             ),
           ).animate().fadeIn(duration: 800.ms).scale(),
-          
+
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -48,38 +48,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Logo/Icon
-                    Icon(
-                      Icons.swap_horizontal_circle_outlined,
-                      size: 80,
-                      color: const Color(0xFF3B82F6), // Royal Blue
-                    ).animate().fadeIn().slideY(begin: -0.2),
-                    
-                    const SizedBox(height: 16),
-                    
                     Text(
-                      'Skill Swap',
+                      'Join Skill Swap',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
-                        letterSpacing: 1.2,
                       ),
-                    ).animate().fadeIn(delay: 200.ms),
+                    ).animate().fadeIn().slideY(begin: -0.2),
+
+                    const SizedBox(height: 8),
                     
                     Text(
-                      'Welcome back, student!',
+                      'Create an account to start swapping skills',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         color: Colors.white70,
                       ),
-                    ).animate().fadeIn(delay: 400.ms),
-                    
-                    const SizedBox(height: 48),
-                    
-                    // Glassmorphism Card
+                    ).animate().fadeIn(delay: 200.ms),
+
+                    const SizedBox(height: 40),
+
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -89,6 +80,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Column(
                         children: [
+                          _buildTextField(
+                            controller: _nameController,
+                            label: 'Full Name',
+                            icon: Icons.person_outline,
+                          ),
+                          const SizedBox(height: 20),
                           _buildTextField(
                             controller: _emailController,
                             label: 'Email Address',
@@ -105,20 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               setState(() => _isPasswordVisible = !_isPasswordVisible);
                             },
                           ),
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                'Forgot Password?',
-                                style: GoogleFonts.inter(color: Colors.blueAccent),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          
-                          // Login Button
+                          const SizedBox(height: 32),
+
+                          // Signup Button
                           SizedBox(
                             width: double.infinity,
                             height: 56,
@@ -126,10 +112,21 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: authProvider.isLoading 
                                 ? null 
                                 : () async {
-                                    final success = await authProvider.login(
+                                    if (_nameController.text.isEmpty || 
+                                        _emailController.text.isEmpty || 
+                                        _passwordController.text.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Please fill all fields')),
+                                      );
+                                      return;
+                                    }
+                                    
+                                    final success = await authProvider.signUp(
+                                      _nameController.text.trim(),
                                       _emailController.text.trim(),
                                       _passwordController.text.trim(),
                                     );
+                                    
                                     if (success && mounted) {
                                       Navigator.pushReplacement(
                                         context,
@@ -152,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: authProvider.isLoading
                                 ? const CircularProgressIndicator(color: Colors.white)
                                 : Text(
-                                    'Login',
+                                    'Create Account',
                                     style: GoogleFonts.inter(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -162,27 +159,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                    ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
-                    
+                    ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
+
                     const SizedBox(height: 24),
-                    
-                    // Signup Link
+
+                    // Login Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "Don't have an account? ",
+                          "Already have an account? ",
                           style: GoogleFonts.inter(color: Colors.white70),
                         ),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const SignupScreen()),
-                            );
-                          },
+                          onTap: () => Navigator.pop(context),
                           child: Text(
-                            "Sign Up",
+                            "Login",
                             style: GoogleFonts.inter(
                               color: const Color(0xFF60A5FA),
                               fontWeight: FontWeight.bold,
@@ -190,10 +182,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ],
-                    ).animate().fadeIn(delay: 800.ms),
+                    ).animate().fadeIn(delay: 600.ms),
                   ],
                 ),
               ),
+            ),
+          ),
+          
+          // Back Button
+          Positioned(
+            top: 40,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
         ],
