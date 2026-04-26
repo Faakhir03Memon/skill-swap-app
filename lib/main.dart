@@ -4,12 +4,20 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
 import 'providers/auth_provider.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // NOTE: Requires `flutterfire configure` to generate DefaultFirebaseOptions
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform); 
+  // Initialize Firebase with the manual options
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print('Firebase initialization error: \$e');
+    // Note: If keys are not filled yet, this might fail or skip
+  }
   
   runApp(
     MultiProvider(
